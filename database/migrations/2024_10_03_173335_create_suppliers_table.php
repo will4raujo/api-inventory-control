@@ -15,7 +15,7 @@ return new class extends Migration
             $table->integer('id')->primary();
             $table->string('name', 250);
             $table->string('cnpj', 18)->unique();
-            $table->integer('contact', 15);
+            $table->string('contact', 15);
         });
     }
 
