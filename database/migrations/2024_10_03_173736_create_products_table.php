@@ -28,7 +28,10 @@ return new class extends Migration
             $table->integer('stock');
             $table->integer('min_stock');
             $table->integer('max_stock');
-            $table->timestamp('expiration_date')->nullable();
+            $table->date('expiration_date')->nullable();
+
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent();
         });
     }
 

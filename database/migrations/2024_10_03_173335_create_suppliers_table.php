@@ -16,6 +16,9 @@ return new class extends Migration
             $table->string('name', 250);
             $table->string('cnpj', 18)->unique();
             $table->string('contact', 15);
+
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent();
         });
     }
 
