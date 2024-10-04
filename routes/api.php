@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\SuppliersController;
+use App\Http\Controllers\ProductsController;
 
 Route::post('/register', [UserController::class, 'store']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -31,3 +32,8 @@ Route::get('/suppliers', [SuppliersController::class, 'index']);
 Route::post('/suppliers', [SuppliersController::class, 'store']);
 Route::get('/suppliers/{id}', [SuppliersController::class, 'findById']);
 Route::delete('/suppliers/{id}', [SuppliersController::class, 'destroy']);
+//products
+Route::get('/products', [ProductsController::class, 'index']);
+Route::post('/products', [ProductsController::class, 'store']);
+Route::get('/products/{id}', [ProductsController::class, 'findById']);
+Route::delete('/products/{id}', [ProductsController::class, 'destroy']);
