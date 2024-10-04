@@ -41,3 +41,6 @@ Route::get('/products', [ProductsController::class, 'index']);
 Route::post('/products', [ProductsController::class, 'store']);
 Route::get('/products/{id}', [ProductsController::class, 'findById']);
 Route::delete('/products/{id}', [ProductsController::class, 'destroy']);
+//stock movements
+Route::get('/stock-movements', [MovementStockController::class, 'index']);
+Route::post('/stock-movements', [MovementStockController::class, 'store']);

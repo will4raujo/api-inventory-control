@@ -22,4 +22,9 @@ class Product extends Model
         'max_stock',
         'expiration_date'
     ];
+
+    public function stockMovements()
+    {
+        return $this->hasMany(StockMovement::class);
+    }
 }
