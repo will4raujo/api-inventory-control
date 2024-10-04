@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->integer('id')->primary();
+            $table->increments('id');
             $table->string('name', 250);
             $table->string('email', 250)->unique();
             $table->string('password', 255);
@@ -21,7 +21,7 @@ return new class extends Migration
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent();
 
-            $table->integer('role_id'); 
+            $table->unsignedInteger('role_id'); 
             $table->foreign('role_id')->references('id')->on('users_roles')->onDelete('cascade');
         });
     }
