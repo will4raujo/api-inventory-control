@@ -45,9 +45,29 @@ class ProductsController extends Controller
 
     public function index()
     {
-        $products = Product::all();
-
-        return response()->json($products);
+        $query = Product::query();
+    
+        if ($request->has('category')) {
+            $query->where('category', $request->category);
+        }
+        if ($request->has('supplier')) {
+            $query->where('supplier', $request->supplier);
+        }
+        if ($request->has('search')) {
+            $query->where('name', 'LIKE', '%' . $request->search . '%');
+        }
+    
+        if ($request->has('sort') && $request->sort === 'low_stock') {
+            $query->orderBy('stock', 'asc'); 
+        }
+    
+        if ($request->has('sort') && $request->sort === 'expiration') {
+            $query->orderBy('expiration_date', 'asc');
+        }
+    
+        $products = $query->paginate(10);
+    
+        return view('products.index', compact('products'));
     }
 
     public function findById(Request $request, int $id)

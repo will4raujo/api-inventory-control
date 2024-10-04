@@ -9,8 +9,23 @@ class StockMovementController extends Controller
 {
     public function index()
     {
-        $movements = StockMovement::with('product')->orderBy('created_at', 'desc')->get();
-        return response()->json($movements);
+        $query = StockMovement::query();
+    
+        if ($request->has('product_id')) {
+            $query->where('product_id', $request->product_id);
+        }
+        if ($request->has('type')) {
+            $query->where('type', $request->type);
+        }
+        if ($request->has('date_from') && $request->has('date_to')) {
+            $query->whereBetween('created_at', [$request->date_from, $request->date_to]);
+        }
+    
+        $query->orderBy('created_at', 'desc');
+    
+        $movements = $query->paginate(10);
+    
+        return view('movements.index', compact('movements'));
     }
 
     public function store(Request $request)
