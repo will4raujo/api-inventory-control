@@ -42,26 +42,47 @@ class CategoriesController extends Controller
         return response()->json($category);
     }
 
-    // public function destroy($id)
-    // {
-    //     $id = intval($id)
+    public function update(Request $request, int $id)
+    {
+        if (!is_numeric($id) || $id <= 0) {
+            return response()->json(['message' => 'Invalid category id'], 400);
+        }
 
-    //     if (!is_numeric($id) || intval($id) <= 0) {
-    //         return response()->json(['message' => 'Invalid category id'], 400);
-    //     }
+        $category = Category::find($id);
 
-    //     $category = Category::find($id);
-    //     if (!$category) {
-    //         return response()->json(['message' => 'Category not found'], 404);
-    //     }
+        if (!$category) {
+            return response()->json(['message' => 'Category not found'], 404);
+        }
+        
+        $request->validate([
+            'name' => 'required|string|max:100'
+        ]);
+
+        $category->update([
+            'name' => $request->name
+        ]);
+
+        return response()->json(['message' => 'Category updated successfully'], 200);
+    }
+
+    public function destroy(int $id)
+    {
+        if (!is_numeric($id) || intval($id) <= 0) {
+            return response()->json(['message' => 'Invalid category id'], 400);
+        }
+
+        $category = Category::find($id);
+        if (!$category) {
+            return response()->json(['message' => 'Category not found'], 404);
+        }
     
-    //     $products = Product::where('category_id', $id)->exists();
-    //     if ($products) {
-    //         return response()->json(['message' => 'Category has products and cannot be deleted'], 400);
-    //     }
+        // $products = Product::where('category_id', $id)->exists();
+        // if ($products) {
+        //     return response()->json(['message' => 'Category has products and cannot be deleted'], 400);
+        // }
     
-    //     $category->delete();
+        $category->delete();
     
-    //     return response()->json(['message' => 'Category deleted successfully'], 200);
-    // }
+        return response()->json(['message' => 'Category deleted successfully'], 200);
+    }
 }

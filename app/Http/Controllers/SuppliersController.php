@@ -11,7 +11,7 @@ class SuppliersController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'cnpj' => 'required|string|max:14',
+            'cnpj' => 'required|string|max:18',
             'contact' => 'required|string|max:255'
         ]);
 
@@ -46,23 +46,51 @@ class SuppliersController extends Controller
         return response()->json($supplier);
     }
 
-    // public function destroy(int $id)
-    // {
-    //     if (!is_numeric($id) || intval($id) <= 0) {
-    //         return response()->json(['message' => 'Invalid supplier id'], 400);
-    //     }
+    public function update(Request $request, int $id)
+    {
+        if (!is_numeric($id) || $id <= 0) {
+            return response()->json(['message' => 'Invalid supplier id'], 400);
+        }
 
-    //     $supplier = Supplier::find($id);
-    //     if (!$supplier) {
-    //         return response()->json(['message' => 'Supplier not found'], 404);
-    //     }
+        $supplier = Supplier::find($id);
 
-    //     $products = Product::where('supplier_id', $id)->exists();
-    //     if ($products) {
-    //         return response()->json(['message' => 'Supplier has products and cannot be deleted'], 400);
-    //     }
+        if (!$supplier) {
+            return response()->json(['message' => 'Supplier not found'], 404);
+        }
 
-    //     $supplier->delete();
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'cnpj' => 'required|string|max:18',
+            'contact' => 'required|string|max:255'
+        ]);
 
-    //     return response()->json(['message' => 'Supplier deleted successfully']);
+        $supplier->update([
+            'name' => $request->name,
+            'cnpj' => $request->cnpj,
+            'contact' => $request->contact
+        ]);
+
+        return response()->json(['message' => 'Supplier updated successfully']);
+    }
+
+    public function destroy(int $id)
+    {
+        if (!is_numeric($id) || intval($id) <= 0) {
+            return response()->json(['message' => 'Invalid supplier id'], 400);
+        }
+
+        $supplier = Supplier::find($id);
+        if (!$supplier) {
+            return response()->json(['message' => 'Supplier not found'], 404);
+        }
+
+        // $products = Product::where('supplier_id', $id)->exists();
+        // if ($products) {
+        //     return response()->json(['message' => 'Supplier has products and cannot be deleted'], 400);
+        // }
+
+        $supplier->delete();
+
+        return response()->json(['message' => 'Supplier deleted successfully']);
+    }
 }

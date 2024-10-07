@@ -16,8 +16,9 @@ return new class extends Migration
             $table->unsignedInteger('product_id');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->unsignedBigInteger('quantity');
-            $table->enum('type', ['input', 'output', 'return', 'loss']);
+            $table->enum('type', ['input', 'output', 'return', 'loss', 'adjustment']);
             $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent();
             $table->unsignedInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });

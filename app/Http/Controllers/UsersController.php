@@ -31,6 +31,13 @@ class UsersController extends Controller
         return response()->json(['message' => 'User registered successfully'], 201);
     }
 
+    public function profile(Request $request)
+    {
+        $user = auth()->user();
+
+        return response()->json($user);
+    }
+
     public function index()
     {
         $users = User::all();
@@ -44,13 +51,46 @@ class UsersController extends Controller
             return response()->json(['message' => 'Invalid user id'], 400);
         }
 
+        try {
+            $user = User::find($id);
+    
+            if (!$user) {
+                return response()->json(['message' => 'User not found'], 404);
+            }
+    
+            return response()->json($user);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error fetching user', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function update(Request $request, int $id)
+    {
+        if (!is_numeric($id) || $id <= 0) {
+            return response()->json(['message' => 'Invalid user id'], 400);
+        }
+
         $user = User::find($id);
 
-        if (!$user){
+        if (!$user) {
             return response()->json(['message' => 'User not found'], 400);
         }
 
-        return response()->json($user);
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
+            'phone' => 'sometimes|required|string|max:15',
+            'role_id' => 'sometimes|required|integer'
+        ]);
+
+        $user->update([
+            'name' => $request->name ?? $user->name,
+            'email' => $request->email ?? $user->email,
+            'phone' => $request->phone ?? $user->phone,
+            'role_id' => $request->role_id ?? $user->role_id
+        ]);
+
+        return response()->json(['message' => 'User updated successfully']);
     }
 
     public function destroy(int $id)

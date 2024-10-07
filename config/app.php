@@ -123,4 +123,8 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'aliases' => [
+        'HandleCors' => \Fruitcake\Cors\HandleCors::class,
+    ],
+
 ];

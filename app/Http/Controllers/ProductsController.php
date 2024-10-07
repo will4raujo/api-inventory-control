@@ -24,7 +24,7 @@ class ProductsController extends Controller
             'expiration_date' => 'required|date'
         ]);
 
-        $expirationDate = Carbon::createFromFormat('d/m/Y', $request->expiration_date)->format('Y-m-d');
+        $expirationDate = Carbon::createFromFormat('Y-m-d', $request->expiration_date)->format('Y-m-d');
 
         $product = Product::create([
             'name' => $request->name,
@@ -43,33 +43,6 @@ class ProductsController extends Controller
         return response()->json(['message' => 'Product created successfully'], 201);
     }
 
-    public function index()
-    {
-        $query = Product::query();
-    
-        if ($request->has('category')) {
-            $query->where('category', $request->category);
-        }
-        if ($request->has('supplier')) {
-            $query->where('supplier', $request->supplier);
-        }
-        if ($request->has('search')) {
-            $query->where('name', 'LIKE', '%' . $request->search . '%');
-        }
-    
-        if ($request->has('sort') && $request->sort === 'low_stock') {
-            $query->orderBy('stock', 'asc'); 
-        }
-    
-        if ($request->has('sort') && $request->sort === 'expiration') {
-            $query->orderBy('expiration_date', 'asc');
-        }
-    
-        $products = $query->paginate(10);
-    
-        return view('products.index', compact('products'));
-    }
-
     public function findById(Request $request, int $id)
     {
         if (!is_numeric($id) || $id <= 0) {
@@ -85,6 +58,49 @@ class ProductsController extends Controller
         return response()->json($product);
     }
 
+    public function update(Request $request, int $id)
+    {
+        if (!is_numeric($id) || $id <= 0) {
+            return response()->json(['message' => 'Invalid supplier id'], 400);
+        }
+
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:250',
+            'code' => 'required|integer',
+            'description' => 'nullable|string|max:250',
+            'category_id' => 'required|integer|exists:categories,id',
+            'supplier_id' => 'required|integer|exists:suppliers,id',
+            'cost_price' => 'required|numeric|min:0',
+            'sale_price' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:0',
+            'min_stock' => 'nullable|integer|min:0',
+            'max_stock' => 'nullable|integer|min:0',
+            'expiration_date' => 'nullable|date',
+        ]);
+
+        $product->update([
+            'name' => $request->name ?? $product->name,
+            'code' => $request->code ?? $product->code,
+            'description' => $request->description ?? $product->description,
+            'category_id' => $request->category_id ?? $product->category_id,
+            'supplier_id' => $request->supplier_id ?? $product->supplier_id,
+            'cost_price' => $request->cost_price ?? $product->cost_price,
+            'sale_price' => $request->sale_price ?? $product->sale_price,
+            'stock' => $request->stock ?? $product->stock,
+            'min_stock' => $request->min_stock ?? $product->min_stock,
+            'max_stock' => $request->max_stock ?? $product->max_stock,
+            'expiration_date' => $request->expiration_date ? Carbon::createFromFormat('Y-m-d', $request->expiration_date)->format('Y-m-d') : $product->expiration_date,
+        ]);
+
+        return response()->json(['message' => 'Product updated successfully', 'product' => $product]);
+    }
+
     public function destroy(int $id)
     {
         if (!is_numeric($id) || intval($id) <= 0) {
@@ -98,5 +114,28 @@ class ProductsController extends Controller
         }
 
         $product->delete();
+    }
+
+    
+    public function index(Request $request)
+    {   
+        $products = Product::all();
+        return response()->json($products);
+    }
+
+    public function lists(Request $request)
+    {
+        $lowStockProducts = Product::where('stock', '<', 'min_stock')
+                                    ->orderBy('stock', 'asc')
+                                    ->get();
+    
+        $soonToExpireProducts = Product::where('expiration_date', '<=', now()->addDays(30))
+                                        ->orderBy('expiration_date', 'asc')
+                                        ->get();
+    
+        return response()->json([
+            'low_stock_products' => $lowStockProducts,
+            'soon_to_expire_products' => $soonToExpireProducts,
+        ]);
     }
 }
