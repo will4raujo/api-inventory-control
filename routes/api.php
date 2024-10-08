@@ -37,7 +37,10 @@ Route::post('/products', [ProductsController::class, 'store'])->middleware(['aut
 Route::get('/products/{id}', [ProductsController::class, 'findById'])->middleware(['auth:sanctum']);
 Route::put('/products/{id}', [ProductsController::class, 'update'])->middleware(['auth:sanctum']);
 Route::delete('/products/{id}', [ProductsController::class, 'destroy'])->middleware(['auth:sanctum']);
-Route::get('/products/lists', [ProductsController::class, 'lists'])->middleware(['auth:sanctum']);
 //stock movements
 Route::get('/movements', [StockMovementController::class, 'index'])->middleware(['auth:sanctum']);
 Route::post('/movements', [StockMovementController::class, 'store'])->middleware(['auth:sanctum']);
+
+Route::get('/lists/home', [ProductsController::class, 'lists'])->middleware(['auth:sanctum']);
+Route::get('/lists/balance', [ProductsController::class, 'balance'])->middleware(['auth:sanctum']);
+Route::get('/lists/movements', [StockMovementController::class, 'movements'])->middleware(['auth:sanctum']);

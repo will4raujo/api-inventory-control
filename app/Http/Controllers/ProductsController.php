@@ -8,6 +8,52 @@ use Carbon\Carbon;
 
 class ProductsController extends Controller
 {
+    public function index(Request $request)
+    {   
+        $products = Product::all();
+        return response()->json($products);
+    }
+
+    public function lists(Request $request)
+    {
+        $lowStockProducts = Product::query()         
+            ->whereColumn('stock', '<', 'min_stock')
+            ->orderBy('stock', 'asc')
+            ->get();
+
+        $soonToExpireProducts = Product::query()
+            ->where('expiration_date', '<=', Carbon::now()->addDays(30))
+            ->orderBy('expiration_date', 'asc')
+            ->get();
+
+        return response()->json([
+            'low_stock_products' => $lowStockProducts,
+            'soon_to_expire_products' => $soonToExpireProducts,
+        ]);
+    }
+
+    public function balance(Request $request)
+    {
+        {
+            $stockByCategory = Product::query()
+                ->join('categories', 'products.category_id', '=', 'categories.id')
+                ->selectRaw('categories.name as category_name, category_id, SUM(stock) as total_stock')
+                ->groupBy('category_id', 'categories.name')
+                ->get();
+
+            $stockBySupplier = Product::query()
+                ->join('suppliers', 'products.supplier_id', '=', 'suppliers.id')
+                ->selectRaw('suppliers.name as supplier_name, supplier_id, SUM(stock) as total_stock')
+                ->groupBy('supplier_id', 'suppliers.name')
+                ->get();
+                
+            return response()->json([
+                'stock_by_category' => $stockByCategory,
+                'stock_by_supplier' => $stockBySupplier,
+            ]);
+        }
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -114,28 +160,5 @@ class ProductsController extends Controller
         }
 
         $product->delete();
-    }
-
-    
-    public function index(Request $request)
-    {   
-        $products = Product::all();
-        return response()->json($products);
-    }
-
-    public function lists(Request $request)
-    {
-        $lowStockProducts = Product::where('stock', '<', 'min_stock')
-                                    ->orderBy('stock', 'asc')
-                                    ->get();
-    
-        $soonToExpireProducts = Product::where('expiration_date', '<=', now()->addDays(30))
-                                        ->orderBy('expiration_date', 'asc')
-                                        ->get();
-    
-        return response()->json([
-            'low_stock_products' => $lowStockProducts,
-            'soon_to_expire_products' => $soonToExpireProducts,
-        ]);
     }
 }
