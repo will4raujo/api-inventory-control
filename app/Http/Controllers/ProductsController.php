@@ -10,9 +10,25 @@ class ProductsController extends Controller
 {
     public function index(Request $request)
     {   
-        $products = Product::all();
+        $query = Product::query();
+
+        if ($request->has('name')) {
+            $query->where('name', 'like', '%' . $request->input('name') . '%');
+        }
+
+        if ($request->has('category_id')) {
+            $query->where('category_id', $request->input('category_id'));
+        }
+
+        if ($request->has('supplier_id')) {
+            $query->where('supplier_id', $request->input('supplier_id'));
+        }
+
+        $products = $query->get();
+
         return response()->json($products);
     }
+
 
     public function lists(Request $request)
     {
