@@ -40,6 +40,12 @@ class UsersController extends Controller
 
     public function index()
     {
+        $user = auth()->user();
+
+        if ($user->role_id !== 1) {
+            return response()->json(['error' => 'You do not have permission to access this resource'], 403);
+        }
+
         $users = User::all();
 
         return response()->json($users);
@@ -99,10 +105,20 @@ class UsersController extends Controller
             return response()->json(['message' => 'Invalid user id'], 400);
         }
 
+        $myUser = auth()->user();
         $user = User::find($id);
 
         if(!$user) {
             return response()->json(['message' => 'User not found'], 400);
+        }
+
+        if ($myUser->id === $user->id) {
+            $user->delete();
+            return response()->json(['message' => 'User deleted successfully'], 200);
+        }
+    
+        if ($myUser->role_id === 1 && $user->role_id === 1) {
+            return response()->json(['message' => 'Unauthorized to delete another administrator'], 403);
         }
 
         $user->delete();
